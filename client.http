@@ -1,10 +1,1 @@
-POST http://localhost:3333/api/perfil
-Content-Type: application/json
-
-{
-  "perfil_name": "ad"
-}
-
-###
-
-GET http://localhost:3333/api/perfil
+DELETE http://localhost:3333/api/perfil/3
