@@ -1,10 +1,20 @@
 import fastify from 'fastify';
 import { perfilRoutes } from './routes/perfil/route';
+import { usuarioRoutes } from './routes/usuario/route';
+import { areaRoutes } from './routes/area/route';
 
 const app = fastify();
 
 app.register(perfilRoutes, {
   prefix: '/api/perfil',
+});
+
+app.register(usuarioRoutes, {
+  prefix: '/api/usuario',
+});
+
+app.register(areaRoutes, {
+  prefix: 'api/area',
 });
 
 app
