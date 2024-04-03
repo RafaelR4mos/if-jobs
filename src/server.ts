@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { perfilRoutes } from './routes/perfil/route';
+import { perfilRoutes } from './routes/perfil/perfil/route';
 
 const app = fastify();
 

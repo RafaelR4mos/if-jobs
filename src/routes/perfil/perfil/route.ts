@@ -1,29 +1,29 @@
 import { FastifyInstance } from 'fastify';
-import { sql } from '../../lib/postgres';
+import { sql } from '../../../lib/postgres';
 import { z } from 'zod';
 
-export async function areaRoutes(app: FastifyInstance) {
+export async function perfilRoutes(app: FastifyInstance) {
   app.get('/', async () => {
     const result = await sql/*sql*/ `
       SELECT * 
-      FROM tb_area
-      ORDER BY id_area DESC
+      FROM TB_Perfil
+      ORDER BY ID_Perfil DESC
     `;
 
     return { result };
   });
 
   app.post('/', async (request, reply) => {
-    const createAreaSchema = z.object({
-      nm_area: z.string().min(3),
+    const createPerfilSchema = z.object({
+      perfil_name: z.string().min(3),
     });
 
-    const { nm_area } = createAreaSchema.parse(request.body);
+    const { perfil_name } = createPerfilSchema.parse(request.body);
 
     try {
       const result = await sql/*sql*/ `
-          INSERT INTO tb_area (nm_area)
-          VALUES (${nm_area}) RETURNING *;
+          INSERT INTO TB_Perfil (Nm_Perfil)
+          VALUES (${perfil_name}) RETURNING *;
         `;
 
       if (result.length === 1) {
@@ -34,52 +34,52 @@ export async function areaRoutes(app: FastifyInstance) {
     } catch (error) {
       return reply
         .status(400)
-        .send({ message: 'Não foi possível criar a área' });
+        .send({ message: 'Não foi possível criar o perfil' });
     }
   });
 
   app.delete('/:id', async (request, reply) => {
-    const deleteAreaParams = z.object({
+    const deletePerfilParams = z.object({
       id: z.string(),
     });
 
-    const { id } = deleteAreaParams.parse(request.params);
+    const { id } = deletePerfilParams.parse(request.params);
     const numericId = parseInt(id, 10); // Convert id to a number
 
     try {
       const result = await sql/*sql*/ `
-        DELETE FROM tb_area WHERE id_area = ${numericId}
+        DELETE FROM Tb_Perfil WHERE id_perfil = ${numericId}
         RETURNING *; 
       `;
 
       if (result.length === 1) {
         return reply.status(204).send();
       } else {
-        return reply.status(404).send('Recurso não encontrado');
+        return reply.status(404).send('Resource not found');
       }
     } catch (error) {
-      console.error('Erro ao executar a consulta SQL:', error);
-      return reply.status(500).send('Erro interno do servidor');
+      console.error('Error executing SQL query:', error);
+      return reply.status(500).send('Internal Server Error');
     }
   });
 
   app.put('/:id', async (request, reply) => {
-    const editAreaParams = z.object({
+    const editPerfilParams = z.object({
       id: z.string(),
     });
 
-    const editAreaSchema = z.object({
-      nm_area: z.string().min(3),
+    const editPerfilSchema = z.object({
+      nm_perfil: z.string().min(3),
     });
 
-    const { id } = editAreaParams.parse(request.params);
+    const { id } = editPerfilParams.parse(request.params);
     const numericId = parseInt(id, 10);
 
-    const { nm_area } = editAreaSchema.parse(request.body);
+    const { nm_perfil } = editPerfilSchema.parse(request.body);
 
     try {
       const result = await sql/*sql*/ `
-      UPDATE tb_area SET nm_area = ${nm_area} WHERE id_area = ${numericId};
+      UPDATE TB_Perfil SET Nm_Perfil = ${nm_perfil};
     `;
 
       return reply.status(200).send(result);

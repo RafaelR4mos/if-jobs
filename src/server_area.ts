@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { areaRoutes } from './routes/perfil/route_area.ts';
+import { areaRoutes } from './routes/perfil/area/route_area.ts';
 
 const app = fastify();
 
