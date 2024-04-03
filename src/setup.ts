@@ -2,8 +2,9 @@ import { sql } from "./lib/postgres";
 
 async function setup() {
   await sql/*sql*/ `
-  ALTER TABLE TB_Usuario add column Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  `;
+CREATE TABLE tb_teste (
+    id_teste INT NOT NULL
+); `;
 
   await sql.end();
   console.log("Funcionou");
