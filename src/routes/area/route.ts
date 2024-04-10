@@ -10,7 +10,14 @@ export async function areaRoutes(app: FastifyInstance) {
       ORDER BY id_area DESC
     `;
 
-    return { result };
+    return {
+      area: result.map((area) => {
+        return {
+          id_area: area.id_area,
+          nome_area: area.nm_area,
+        };
+      }),
+    };
   });
 
   app.post('/', async (request, reply) => {
@@ -23,7 +30,7 @@ export async function areaRoutes(app: FastifyInstance) {
     try {
       const result = await sql/*sql*/ `
           INSERT INTO tb_area (nm_area)
-          VALUES (${nm_area}) RETURNING *;
+          VALUES (${nm_area}) RETURNING id_area;
         `;
 
       if (result.length === 1) {
@@ -79,7 +86,7 @@ export async function areaRoutes(app: FastifyInstance) {
 
     try {
       const result = await sql/*sql*/ `
-      UPDATE tb_area SET nm_area = ${nm_area} WHERE id_area = ${numericId};
+      UPDATE tb_area SET nm_area = ${nm_area} WHERE id_area = ${numericId} RETURNING id_area;
     `;
 
       return reply.status(200).send(result);

@@ -1,12 +1,15 @@
-import { sql } from "./lib/postgres";
+import { sql } from './lib/postgres';
 
 async function setup() {
   await sql/*sql*/ `
-  ALTER TABLE TB_Usuario add column Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  CREATE TABLE Tb_Area(
+    id_area SERIAL primary key,
+    nm_area varchar(30) not null
+  )
   `;
 
   await sql.end();
-  console.log("Funcionou");
+  console.log('Funcionou');
 }
 
 setup();
