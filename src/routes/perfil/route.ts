@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { sql } from '../../lib/postgres';
-import { z } from 'zod';
+import { ZodError, z } from 'zod';
 
 export async function perfilRoutes(app: FastifyInstance) {
   app.get('/', async () => {
@@ -18,9 +18,9 @@ export async function perfilRoutes(app: FastifyInstance) {
       perfil_name: z.string().min(3),
     });
 
-    const { perfil_name } = createPerfilSchema.parse(request.body);
-
     try {
+      const { perfil_name } = createPerfilSchema.parse(request.body);
+
       const result = await sql/*sql*/ `
           INSERT INTO TB_Perfil (Nm_Perfil)
           VALUES (${perfil_name}) RETURNING *;
@@ -32,9 +32,14 @@ export async function perfilRoutes(app: FastifyInstance) {
         throw new Error('Algo deu errado!');
       }
     } catch (error) {
-      return reply
-        .status(400)
-        .send({ message: 'Não foi possível criar o perfil' });
+      if (error instanceof ZodError) {
+        return reply.status(400).send({
+          message: 'Error during validation',
+          errors: error.flatten().fieldErrors,
+        });
+      }
+
+      throw new Error(error);
     }
   });
 
@@ -43,10 +48,10 @@ export async function perfilRoutes(app: FastifyInstance) {
       id: z.string(),
     });
 
-    const { id } = deletePerfilParams.parse(request.params);
-    const numericId = parseInt(id, 10); // Convert id to a number
-
     try {
+      const { id } = deletePerfilParams.parse(request.params);
+      const numericId = parseInt(id, 10); // Convert id to a number
+
       const result = await sql/*sql*/ `
         DELETE FROM Tb_Perfil WHERE id_perfil = ${numericId}
         RETURNING *; 
@@ -58,33 +63,44 @@ export async function perfilRoutes(app: FastifyInstance) {
         return reply.status(404).send('Resource not found');
       }
     } catch (error) {
-      console.error('Error executing SQL query:', error);
-      return reply.status(500).send('Internal Server Error');
+      if (error instanceof ZodError) {
+        return reply.status(400).send({
+          message: 'Error during validation',
+          errors: error.flatten().fieldErrors,
+        });
+      }
+      throw new Error(error);
     }
   });
 
   app.put('/:id', async (request, reply) => {
     const editPerfilParams = z.object({
-      id: z.string(),
+      id: z.string().transform(Number),
     });
 
     const editPerfilSchema = z.object({
       nm_perfil: z.string().min(3),
     });
 
-    const { id } = editPerfilParams.parse(request.params);
-    const numericId = parseInt(id, 10);
-
-    const { nm_perfil } = editPerfilSchema.parse(request.body);
-
     try {
+      const { id } = editPerfilParams.parse(request.params);
+      const { nm_perfil } = editPerfilSchema.parse(request.body);
+
       const result = await sql/*sql*/ `
-      UPDATE TB_Perfil SET Nm_Perfil = ${nm_perfil};
+      UPDATE TB_Perfil SET Nm_Perfil = ${nm_perfil}
+      WHERE id_perfil = ${id};
     `;
 
       return reply.status(200).send(result);
     } catch (error) {
-      return reply.status(400).send(error);
+      if (error instanceof ZodError) {
+        return reply.status(400).send({
+          message: 'Error during validation',
+          errors: error.flatten().fieldErrors,
+        });
+      }
+
+      throw new Error(error);
     }
   });
 }

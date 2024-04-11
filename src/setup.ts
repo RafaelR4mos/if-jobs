@@ -2,10 +2,7 @@ import { sql } from './lib/postgres';
 
 async function setup() {
   await sql/*sql*/ `
-  CREATE TABLE Tb_Area(
-    id_area SERIAL primary key,
-    nm_area varchar(30) not null
-  )
+  alter table tb_usuario ALTER COLUMN senha_usuario TYPE VARCHAR(200)
   `;
 
   await sql.end();
