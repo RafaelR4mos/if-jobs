@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
     "fastify": "^4.26.2",
     "postgres": "^3.4.3",
     "zod": "^3.22.4"
